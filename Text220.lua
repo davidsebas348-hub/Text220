@@ -1,71 +1,68 @@
-repeat task.wait() until game:IsLoaded()
-
+--// SERVICIOS
 local Players = game:GetService("Players")
 local player = Players.LocalPlayer
 
--- =========================
--- TOGGLE ÚNICO (GUI 6)
--- =========================
-if _G.GearActivatorGUI_6 then
-	_G.GearActivatorGUI_6:Destroy()
-	_G.GearActivatorGUI_6 = nil
-	return
+--// TOOL
+local tool = Instance.new("Tool")
+tool.Name = " Ghost"
+tool.RequiresHandle = true
+tool.TextureId = "rbxassetid://100805314398190"
+
+--// HANDLE
+local handle = Instance.new("Part")
+handle.Name = "Handle"
+handle.Size = Vector3.new(4,1,2)
+handle.Transparency = 1
+handle.CanCollide = false
+handle.Material = Enum.Material.Plastic
+handle.Color = Color3.fromRGB(163,162,165)
+handle.Parent = tool
+
+--// FUNCION BASE
+local function makePart(name, size, color, offset, transparency, texture)
+	local p = Instance.new("Part")
+	p.Name = name
+	p.Size = Vector3.new(size[1], size[2], size[3])
+	p.Color = Color3.new(color[1], color[2], color[3])
+	p.Material = Enum.Material.Plastic
+	p.CanCollide = false
+	p.Anchored = false
+	p.Transparency = transparency
+	p.Parent = tool
+
+	p.CFrame = handle.CFrame * CFrame.new(offset[1], offset[2], offset[3])
+
+	-- DECAL (cara)
+	if texture then
+		local d = Instance.new("Decal")
+		d.Texture = texture
+		d.Face = Enum.NormalId.Front
+		d.Parent = p
+	end
+
+	-- 🔥 MESH SOLO PARA HEAD
+	if name == "Head" then
+		local mesh = Instance.new("SpecialMesh")
+		mesh.Scale = Vector3.new(1.25,1.25,1.25)
+		mesh.Parent = p
+	end
+
+	local w = Instance.new("WeldConstraint")
+	w.Part0 = handle
+	w.Part1 = p
+	w.Parent = p
+
+	return p
 end
 
--- Crear ScreenGui
-local gui = Instance.new("ScreenGui")
-gui.Name = "GearActivatorGUI_6"
-gui.Parent = player:WaitForChild("PlayerGui")
-gui.ResetOnSpawn = false
-_G.GearActivatorGUI_6 = gui
+-- PARTES (GHOST)
+makePart("Head", {0.6,0.3,0.3}, {0.498,0.498,0.498}, {0,0.85,0}, 0.6, "rbxasset://textures/face.png")
+makePart("Torso", {0.6,0.6,0.3}, {0.498,0.498,0.498}, {0,0.4,0}, 0.6)
+makePart("Left Arm", {0.3,0.6,0.3}, {0.498,0.498,0.498}, {-0.45,0.4,0}, 0.6)
+makePart("Right Arm", {0.3,0.6,0.3}, {0.498,0.498,0.498}, {0.45,0.4,0}, 0.6)
+makePart("Left Leg", {0.3,0.6,0.3}, {0.498,0.498,0.498}, {-0.15,-0.2,0}, 0.6)
+makePart("Right Leg", {0.3,0.6,0.3}, {0.498,0.498,0.498}, {0.15,-0.2,0}, 0.6)
+makePart("HumanoidRootPart", {0.6,0.6,0.3}, {0.639,0.635,0.647}, {0,0.4,0}, 0.6)
 
--- Crear Frame principal
-local frame = Instance.new("Frame")
-frame.Size = UDim2.new(0, 250, 0, 120)
-frame.Position = UDim2.new(0.5, -125, 0.5, -60)
-frame.BackgroundColor3 = Color3.fromRGB(30, 30, 30)
-frame.BorderSizePixel = 0
-frame.Parent = gui
-frame.Active = true
-frame.Draggable = true
-
--- Texto
-local label = Instance.new("TextLabel")
-label.Size = UDim2.new(1, -20, 0, 30)
-label.Position = UDim2.new(0, 10, 0, 10)
-label.Text = "SPAWN CLONE"
-label.TextColor3 = Color3.fromRGB(255, 255, 255)
-label.BackgroundTransparency = 1
-label.TextScaled = true
-label.Parent = frame
-
--- TextBox
-local textbox = Instance.new("TextBox")
-textbox.Size = UDim2.new(1, -20, 0, 30)
-textbox.Position = UDim2.new(0, 10, 0, 45)
-textbox.PlaceholderText = ""
-textbox.Text = ""
-textbox.ClearTextOnFocus = false
-textbox.TextColor3 = Color3.fromRGB(0, 0, 0)
-textbox.BackgroundColor3 = Color3.fromRGB(200, 200, 200)
-textbox.Parent = frame
-
--- Botón
-local button = Instance.new("TextButton")
-button.Size = UDim2.new(1, -20, 0, 30)
-button.Position = UDim2.new(0, 10, 0, 80)
-button.Text = "Activar"
-button.TextColor3 = Color3.fromRGB(255, 255, 255)
-button.BackgroundColor3 = Color3.fromRGB(50, 50, 50)
-button.Parent = frame
-
--- Función botón
-button.MouseButton1Click:Connect(function()
-	local value = tonumber(textbox.Text)
-	if value then
-		for i = 1, value do
-			local args = {[1] = "Decoy"}
-			game:GetService("ReplicatedStorage").ActivateGear:FireServer(unpack(args))
-		end
-	end
-end)
+--// DAR TOOL
+tool.Parent = player:WaitForChild("Backpack")
